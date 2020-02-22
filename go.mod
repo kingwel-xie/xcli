@@ -1,4 +1,4 @@
-module xcli
+module github.com/kingwel-xie/xcli
 
 go 1.13
 
