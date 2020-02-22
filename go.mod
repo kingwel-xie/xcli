@@ -15,5 +15,7 @@ require (
 	github.com/libp2p/go-libp2p-net v0.1.0 // indirect
 	github.com/libp2p/go-libp2p-record v0.1.2
 	github.com/multiformats/go-multiaddr v0.2.0
+	github.com/opentracing/opentracing-go v1.1.0
+	github.com/pkg/errors v0.8.1
 	github.com/urfave/cli/v2 v2.1.1
 )
