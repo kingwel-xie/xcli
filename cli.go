@@ -312,7 +312,7 @@ AUTHOR{{with $length := len .Authors}}{{if ne 1 $length}}S{{end}}{{end}}:
    {{end}}{{$author}}{{end}}{{end}}
 `
 	app := &cli.App{
-		Name:     "sproxy",
+		Name:     "xCLI",
 		Version:  "v0.99.0",
 		Compiled: time.Now(),
 		Authors: []*cli.Author{
