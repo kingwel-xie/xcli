@@ -12,7 +12,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var ErrQuitCLI = fmt.Errorf("quitting cli")
+var (
+	ErrBadArgument = fmt.Errorf("bad argument")
+	ErrQuitCLI     = fmt.Errorf("quitting cli")
+)
 
 // built-in cli commands
 //
@@ -81,7 +84,7 @@ var builtinCmds = cli.Commands{
 					fmt.Fprintln(c.App.Writer, "current mode: emacs")
 				}
 			default:
-				fmt.Fprintln(c.App.Writer, "Unknown argument: ", c.Args().First())
+				return ErrBadArgument
 			}
 			return nil
 		},
@@ -93,7 +96,6 @@ var builtinCmds = cli.Commands{
 		Usage:       "exit",
 		Description: "exit CLI",
 		Action: func(c *cli.Context) error {
-			fmt.Fprint(c.App.Writer, "Quiting...")
 			return ErrQuitCLI
 		},
 	},
@@ -258,7 +260,6 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 
 		e := app.RunContext(ctx, args)
 		if e != nil {
-			fmt.Println(e)
 			if e == ErrQuitCLI {
 				break
 			}
@@ -362,6 +363,10 @@ AUTHOR{{with $length := len .Authors}}{{if ne 1 $length}}S{{end}}{{end}}:
 			return nil
 		},
 		ExitErrHandler: func(c *cli.Context, err error) {
+			fmt.Fprintf(c.App.Writer, "Error : %s\n\n", err)
+			if c.Command != nil && err == ErrBadArgument {
+				cli.ShowCommandHelp(c, c.Command.Name)
+			}
 		},
 	}
 

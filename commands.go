@@ -30,7 +30,6 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 )
 
-
 type P2PNode struct {
 	host.Host
 	Dht *dht.IpfsDHT
@@ -63,8 +62,8 @@ func convertPeers(peers []string) []peer.AddrInfo {
 	return pinfos
 }
 
-func RunP2PNodeCLI(node *P2PNode, args... cli.Commands) {
-	for _,c := range args {
+func RunP2PNodeCLI(node *P2PNode, args ...cli.Commands) {
+	for _, c := range args {
 		cliCmds = append(cliCmds, c...)
 	}
 
@@ -75,8 +74,8 @@ func RunP2PNodeCLI(node *P2PNode, args... cli.Commands) {
 
 var cliCmds = cli.Commands{
 	{
-		Name:     "id",
-		Category: "p2p",
+		Name:        "id",
+		Category:    "p2p",
 		Usage:       "id",
 		Description: "show my id and addresses",
 		Action: func(c *cli.Context) error {
@@ -102,7 +101,7 @@ var cliCmds = cli.Commands{
 		Aliases:     []string{"qu"},
 		Category:    "dht",
 		Usage:       "query <key>",
-		Description:   "start refreshing dht to get some closest peers",
+		Description: "start refreshing dht to get some closest peers",
 		Action: func(c *cli.Context) error {
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			QueryPeer(c, node, c.Args().First())
@@ -114,11 +113,10 @@ var cliCmds = cli.Commands{
 		Aliases:     []string{"pv"},
 		Category:    "dht",
 		Usage:       "put <key> <value>",
-		Description:   "get k/v to dht routing table",
+		Description: "get k/v to dht routing table",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 2 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			PutKeyValue(node, c.Args().First(), c.Args().Get(1))
@@ -129,11 +127,10 @@ var cliCmds = cli.Commands{
 		Aliases:     []string{"gv"},
 		Category:    "dht",
 		Usage:       "get <key>",
-		Description:   "get k/v from dht routing table",
+		Description: "get k/v from dht routing table",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			GetKeyValue(c, node, c.Args().First())
@@ -145,11 +142,10 @@ var cliCmds = cli.Commands{
 		Aliases:     []string{"fv"},
 		Category:    "dht",
 		Usage:       "findprovs <cid>",
-		Description:   "find provider peer-id with specified CID",
+		Description: "find provider peer-id with specified CID",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			FindProviders(node, c.Args().First())
@@ -161,7 +157,7 @@ var cliCmds = cli.Commands{
 		Aliases:     []string{"pr"},
 		Category:    "dht",
 		Usage:       "provide <cid>",
-		Description:   "provide CID to dht routing table",
+		Description: "provide CID to dht routing table",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
 				fmt.Fprintln(c.App.Writer, "Bad argument")
@@ -173,14 +169,13 @@ var cliCmds = cli.Commands{
 		},
 	},
 	{
-		Name:        "find-peer",
-		Aliases:     []string{"fp"},
-		Category:    "dht",
-		Usage:       "find-peer <cid>",
+		Name:     "find-peer",
+		Aliases:  []string{"fp"},
+		Category: "dht",
+		Usage:    "find-peer <cid>",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			FindPeer(c, node, c.Args().First())
@@ -188,14 +183,13 @@ var cliCmds = cli.Commands{
 		},
 	},
 	{
-		Name:        "dump-bucket",
-		Aliases:     []string{"db"},
-		Category:    "dht",
-		Usage:       "dump-bucket",
+		Name:     "dump-bucket",
+		Aliases:  []string{"db"},
+		Category: "dht",
+		Usage:    "dump-bucket",
 		Action: func(c *cli.Context) error {
 			if c.Args().Present() {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			node.Dht.RoutingTable().Print()
@@ -207,7 +201,7 @@ var cliCmds = cli.Commands{
 		Aliases:     []string{"re"},
 		Category:    "dht",
 		Usage:       "refresh",
-		Description:   "refresh - refresh dht routing table",
+		Description: "refresh - refresh dht routing table",
 		Action: func(c *cli.Context) error {
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			node.Dht.RefreshRoutingTable()
@@ -219,7 +213,7 @@ var cliCmds = cli.Commands{
 		Aliases:     []string{"boot"},
 		Category:    "dht",
 		Usage:       "bootstrap",
-		Description:   "bootstrap - refresh dht routing table",
+		Description: "bootstrap - refresh dht routing table",
 		Action: func(c *cli.Context) error {
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			bootstrapConnect(c.Context, node, IPFS_PEERS)
@@ -227,29 +221,27 @@ var cliCmds = cli.Commands{
 		},
 	},
 	{
-		Name:        "connect",
-		Aliases:     []string{"con"},
-		Category:    "p2p",
-		Usage:       "connect <multiaddr>",
+		Name:     "connect",
+		Aliases:  []string{"con"},
+		Category: "p2p",
+		Usage:    "connect <multiaddr>",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			e := connectPeer(c.Context, node, c.Args().First())
 			fmt.Fprintln(c.App.Writer, e)
 			return nil
 		},
-	},	{
-		Name:        "disconnect",
-		Aliases:     []string{"disc"},
-		Category:    "p2p",
-		Usage:       "disconnect <peer-id>",
+	}, {
+		Name:     "disconnect",
+		Aliases:  []string{"disc"},
+		Category: "p2p",
+		Usage:    "disconnect <peer-id>",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			e := disconnectPeer(c.Context, node, c.Args().First())
@@ -258,13 +250,12 @@ var cliCmds = cli.Commands{
 		},
 	},
 	{
-		Name:        "test-stream",
-		Aliases:     []string{"tt"},
-		Usage:       "test-stream <peer-id>",
+		Name:    "test-stream",
+		Aliases: []string{"tt"},
+		Usage:   "test-stream <peer-id>",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			e := testStream(c.Context, node, c.Args().First())
@@ -273,13 +264,12 @@ var cliCmds = cli.Commands{
 		},
 	},
 	{
-		Name:        "test-conn",
-		Aliases:     []string{"tc"},
-		Usage:       "test-conn <peer-id>",
+		Name:    "test-conn",
+		Aliases: []string{"tc"},
+		Usage:   "test-conn <peer-id>",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			e := testConn(c.Context, c.Args().First())
 			fmt.Fprintln(c.App.Writer, e)
@@ -288,26 +278,26 @@ var cliCmds = cli.Commands{
 	},
 	{
 		Name:        "show",
-		Aliases: []string{"s"},
+		Aliases:     []string{"s"},
 		Category:    "show",
 		Usage:       "show [sub-level]",
-		Description:   "show - show connections, streams, logs and such",
+		Description: "show - show connections, streams, logs and such",
 		HideHelp:    true,
 		Subcommands: []*cli.Command{
 			&cli.Command{
 				Name:    "protocols",
 				Aliases: []string{"proto"},
-				Usage:       "show supported protocols",
+				Usage:   "show supported protocols",
 				Action: func(c *cli.Context) error {
 					node := c.App.Metadata["P2PNode"].(*P2PNode)
-					fmt.Fprintln(c.App.Writer, node.Mux().Protocols())
+					_, _ = fmt.Fprintln(c.App.Writer, node.Mux().Protocols())
 					return nil
 				},
 			},
 			&cli.Command{
 				Name:    "addresses",
 				Aliases: []string{"addr"},
-				Usage:       "show known addresses",
+				Usage:   "show known addresses",
 				Action: func(c *cli.Context) error {
 					showAddresses(c.App.Metadata["P2PNode"].(*P2PNode))
 					return nil
@@ -316,7 +306,7 @@ var cliCmds = cli.Commands{
 			&cli.Command{
 				Name:    "peer-store",
 				Aliases: []string{"ps"},
-				Usage:       "show peer data store",
+				Usage:   "show peer data store",
 				Action: func(c *cli.Context) error {
 					showPeerStore(c.App.Metadata["P2PNode"].(*P2PNode))
 					return nil
@@ -325,7 +315,7 @@ var cliCmds = cli.Commands{
 			&cli.Command{
 				Name:    "connections",
 				Aliases: []string{"con"},
-				Usage:       "show connections",
+				Usage:   "show connections",
 				Action: func(c *cli.Context) error {
 					showConnections(c.App.Metadata["P2PNode"].(*P2PNode))
 					return nil
@@ -334,8 +324,15 @@ var cliCmds = cli.Commands{
 			&cli.Command{
 				Name:    "streams",
 				Aliases: []string{"str"},
-				Usage:       "show streams",
+				Usage:   "show streams",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{Name: "verbose", Aliases: []string{"v"}, Required: false},
+				},
 				Action: func(c *cli.Context) error {
+					if c.Bool("verbose") {
+						fmt.Fprintln(c.App.Writer, "Verbose flag is set")
+					}
+
 					showStreams(c.App.Metadata["P2PNode"].(*P2PNode), "")
 					return nil
 				},
@@ -356,11 +353,10 @@ var cliCmds = cli.Commands{
 		Name:        "ping",
 		Category:    "p2p",
 		Usage:       "ping <peerid>",
-		Description:   "ping - ping peer id, will expire in 5s",
+		Description: "ping - ping peer id, will expire in 5s",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
-				fmt.Fprintln(c.App.Writer, "Bad argument")
-				return nil
+				return ErrBadArgument
 			}
 			node := c.App.Metadata["P2PNode"].(*P2PNode)
 			PingHost(c.Context, node, c.Args().First())
@@ -378,43 +374,28 @@ var cliCmds = cli.Commands{
 	{
 		Name:    "log",
 		Aliases: []string{"l"},
-		//Category:    "loglevel",
-		Usage:       "log <name> level",
+		//Category:    "log",
+		Usage:       "log <name|all> [debug|info|warning|error|critical]",
 		Description: "log level management",
-		HideHelp:        true,
-		/*
-			Action: func(c *cli.Context) error {
-				fmt.Fprintln(c.App.Writer, "top log")
+		Action: func(c *cli.Context) error {
+			if c.Args().Len() != 2 {
+				return ErrBadArgument
+			}
+			subsystem := c.Args().First()
+			level := c.Args().Get(1)
+			if subsystem == "all" {
+				subsystem = "*"
+			}
+			if err := logging.SetLogLevel(subsystem, level); err != nil {
+				fmt.Fprintln(c.App.Writer, err)
 				return nil
-			},
+			}
 
-		*/
-		Subcommands: []*cli.Command{
-			&cli.Command{
-				//Category:    "log",
-				Name:        "level",
-				Usage:       "log level <name|all> <debug|info|warning|error|critical>",
-				Description: "change log level",
-				Action: func(c *cli.Context) error {
-					subsystem := c.Args().First()
-					level := c.Args().Get(1)
-					if subsystem == "all" {
-						subsystem = "*"
-					}
-					if err := logging.SetLogLevel(subsystem, level); err != nil {
-						fmt.Fprintln(c.App.Writer, err)
-						return nil
-					}
-
-					fmt.Fprintf(c.App.Writer, "Changed log level of '%s' to '%s'\n", subsystem, level)
-					return nil
-				},
-			},
+			fmt.Fprintf(c.App.Writer, "Changed log level of '%s' to '%s'\n", subsystem, level)
+			return nil
 		},
 	},
 }
-
-
 
 // This code is borrowed from the go-ipfs bootstrap process
 func bootstrapConnect(ctx context.Context, ph host.Host, peers []peer.AddrInfo) error {
@@ -463,6 +444,7 @@ func bootstrapConnect(ctx context.Context, ph host.Host, peers []peer.AddrInfo) 
 	}
 	return nil
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 func showPeerStore(node *P2PNode) {
 	var sum int
@@ -477,7 +459,7 @@ func showConnections(node *P2PNode) {
 	var sum int
 	for _, nn := range node.Network().Conns() {
 		fmt.Println(nn.RemotePeer(), nn.RemoteMultiaddr(), node.Peerstore().LatencyEWMA(nn.RemotePeer()), directionString(nn.Stat().Direction))
-		sum ++
+		sum++
 	}
 	fmt.Println(time.Now(), sum, "Connections")
 }
@@ -623,7 +605,7 @@ func DumpDhtDS(n *P2PNode) {
 		buf, _ := n.Ds.Get(ds.NewKey(e.Key))
 
 		// decode provider data
-		if strings.HasPrefix(e.Key,"/provider") {
+		if strings.HasPrefix(e.Key, "/provider") {
 			ttt := strings.Split(e.Key, "/")
 			fmt.Println(ttt)
 		} else {
@@ -741,14 +723,14 @@ func PingHost(ctx context.Context, node *P2PNode, peerid string) {
 	var sum int
 	for r := range out {
 		fmt.Println(r)
-		sum ++
+		sum++
 		if sum >= 5 {
 			break
 		}
 	}
 }
 
-func testStream (ctx context.Context, node *P2PNode, peerid string) error {
+func testStream(ctx context.Context, node *P2PNode, peerid string) error {
 	pid, err := peer.Decode(peerid)
 	if err != nil {
 		return err
@@ -786,17 +768,17 @@ func testStream (ctx context.Context, node *P2PNode, peerid string) error {
 	}()
 
 	select {
-	case <- ctx.Done():
+	case <-ctx.Done():
 		err = ctx.Err()
-	case <- ch:
+	case <-ch:
 		err = nil
 	}
 
 	return err
 }
 
-
 const TestProtocol = "/test/0.0.1"
+
 func ServeTest(ctx context.Context, node *P2PNode, limit int64) {
 	// Set a stream handler on host A. /echo/1.0.0 is
 	// a user-defined protocol name.
@@ -823,14 +805,14 @@ func ServeTest(ctx context.Context, node *P2PNode, limit int64) {
 				}
 
 				sum += int64(n)
-				if sum >= limit * 1024 * 1024 {
+				if sum >= limit*1024*1024 {
 					//log.Warning("Hit limit", sum)
 					break
 				}
 			}
 
 			elapsed := time.Since(t)
-			rate := float64(sum/1024/1024)/elapsed.Seconds()
+			rate := float64(sum/1024/1024) / elapsed.Seconds()
 			fmt.Printf("Copied=%dM, rate=%.2fMB/s, elapsed=%s\n", sum/1024/1024, rate, elapsed)
 		}()
 
@@ -838,7 +820,6 @@ func ServeTest(ctx context.Context, node *P2PNode, limit int64) {
 		s.Reset()
 	})
 }
-
 
 func ServeTest2(ctx context.Context, limit int64) {
 	l, err := net.Listen("tcp4", ":8848")
@@ -848,7 +829,7 @@ func ServeTest2(ctx context.Context, limit int64) {
 	}
 
 	go func() {
-		<- ctx.Done()
+		<-ctx.Done()
 		l.Close()
 	}()
 
@@ -876,14 +857,14 @@ func ServeTest2(ctx context.Context, limit int64) {
 					}
 
 					sum += int64(n)
-					if sum >= limit * 1024 * 1024 {
+					if sum >= limit*1024*1024 {
 						//log.Warning("Hit limit", sum)
 						break
 					}
 				}
 
 				elapsed := time.Since(t)
-				rate := float64(sum/1024/1024)/elapsed.Seconds()
+				rate := float64(sum/1024/1024) / elapsed.Seconds()
 				fmt.Printf("Copied=%dM, rate=%.2fMB/s, elapsed=%s\n", sum/1024/1024, rate, elapsed)
 			}()
 
@@ -893,8 +874,7 @@ func ServeTest2(ctx context.Context, limit int64) {
 	}
 }
 
-
-func testConn (ctx context.Context, addr string) error {
+func testConn(ctx context.Context, addr string) error {
 
 	c, err := net.Dial("tcp4", addr)
 	if err != nil {
@@ -927,9 +907,9 @@ func testConn (ctx context.Context, addr string) error {
 	}()
 
 	select {
-	case <- ctx.Done():
+	case <-ctx.Done():
 		err = ctx.Err()
-	case <- ch:
+	case <-ch:
 		err = nil
 	}
 
