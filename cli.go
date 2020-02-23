@@ -2,7 +2,6 @@ package xcli
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +12,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var ErrQuitCLI = fmt.Errorf("quitting cli")
+
+// built-in cli commands
+//
 var builtinCmds = cli.Commands{
 	&cli.Command{
 		Category:    "builtin",
@@ -91,7 +94,7 @@ var builtinCmds = cli.Commands{
 		Description: "exit CLI",
 		Action: func(c *cli.Context) error {
 			fmt.Fprint(c.App.Writer, "Quiting...")
-			return errors.New("cli quiting")
+			return ErrQuitCLI
 		},
 	},
 }
@@ -126,8 +129,7 @@ func filterInput(r rune) (rune, bool) {
 	return r, true
 }
 
-func runCli(cmds cli.Commands, f func(map[string]interface{})) {
-
+func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 	fmt.Println("Spawning CLI...")
 
 	// install builtin commands
@@ -257,7 +259,9 @@ func runCli(cmds cli.Commands, f func(map[string]interface{})) {
 		e := app.RunContext(ctx, args)
 		if e != nil {
 			fmt.Println(e)
-			break
+			if e == ErrQuitCLI {
+				break
+			}
 		}
 
 		cancel()

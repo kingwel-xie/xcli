@@ -63,8 +63,12 @@ func convertPeers(peers []string) []peer.AddrInfo {
 	return pinfos
 }
 
-func RunCLI(node *P2PNode) {
-	runCli(cliCmds, func(m map[string]interface{}) {
+func RunP2PNodeCLI(node *P2PNode, args... cli.Commands) {
+	for _,c := range args {
+		cliCmds = append(cliCmds, c...)
+	}
+
+	RunCli(cliCmds, func(m map[string]interface{}) {
 		m["P2PNode"] = node
 	})
 }
