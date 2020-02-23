@@ -363,7 +363,9 @@ AUTHOR{{with $length := len .Authors}}{{if ne 1 $length}}S{{end}}{{end}}:
 			return nil
 		},
 		ExitErrHandler: func(c *cli.Context, err error) {
-			fmt.Fprintf(c.App.Writer, "Error : %s\n\n", err)
+			if err != nil {
+				fmt.Fprintf(c.App.Writer, "Error : %s\n\n", err)
+			}
 			if c.Command != nil && err == ErrBadArgument {
 				cli.ShowCommandHelp(c, c.Command.Name)
 			}
