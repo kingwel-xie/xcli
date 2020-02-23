@@ -794,7 +794,7 @@ func ServeTest(ctx context.Context, node *P2PNode, limit int64) {
 			}()
 
 			var sum int64
-			w := bufio.NewWriterSize(s, 65536)
+			w := bufio.NewWriterSize(s, 4096)
 			b := make([]byte, 4096)
 			t := time.Now()
 			for {
@@ -846,7 +846,7 @@ func ServeTest2(ctx context.Context, limit int64) {
 				defer cancel()
 
 				var sum int64
-				w := bufio.NewWriterSize(c, 65536)
+				w := bufio.NewWriterSize(c, 4096)
 				b := make([]byte, 4096)
 				t := time.Now()
 				for {
@@ -889,7 +889,7 @@ func testConn(ctx context.Context, addr string) error {
 		}()
 
 		b := make([]byte, 4096)
-		ss := bufio.NewReaderSize(c, 65536)
+		ss := bufio.NewReaderSize(c, 4096)
 		var sum int
 		for {
 			n, err := ss.Read(b)
