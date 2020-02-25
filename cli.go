@@ -167,7 +167,6 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 		panic(err)
 	}
 	defer rl.Close()
-	defer fmt.Println("------------**************")
 
 	/*
 		setPasswordCfg := rl.GenPasswordConfig()
@@ -239,7 +238,6 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 			}()
 
 			for {
-				rl.Terminal.KickRead()
 				select {
 				case <-ctx.Done():
 					return
