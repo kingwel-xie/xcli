@@ -4,6 +4,12 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"net"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-datastore/query"
@@ -11,21 +17,16 @@ import (
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/peerstore"
 	"github.com/libp2p/go-libp2p-core/routing"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	"github.com/libp2p/go-libp2p/p2p/protocol/ping"
-	"github.com/opentracing/opentracing-go/log"
+	"github.com/multiformats/go-base32"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
-	"net"
-	"sort"
-	"strings"
-	"sync"
-	"time"
 
 	ds "github.com/ipfs/go-datastore"
-	"github.com/libp2p/go-libp2p-core/peer"
 	recpb "github.com/libp2p/go-libp2p-record/pb"
 	ma "github.com/multiformats/go-multiaddr"
 )
@@ -37,7 +38,7 @@ type P2PNode struct {
 }
 
 var (
-	IPFS_PEERS = convertPeers([]string{
+	IPFS_PEERS = ConvertPeers([]string{
 		//"/ip4/128.199.219.111/tcp/4001/p2p/QmSoLSafTMBsPKadTEgaXctDQVcqN88CNLHXMkTNwMKPnu",
 		//"/ip4/104.236.76.40/tcp/4001/p2p/QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64",
 		//"/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
@@ -48,13 +49,13 @@ var (
 	})
 )
 
-func convertPeers(peers []string) []peer.AddrInfo {
+func ConvertPeers(peers []string) []peer.AddrInfo {
 	pinfos := make([]peer.AddrInfo, len(peers))
 	for i, addr := range peers {
 		maddr := ma.StringCast(addr)
 		p, err := peer.AddrInfoFromP2pAddr(maddr)
 		if err != nil {
-			log.Error(err)
+			fmt.Println(err)
 			return nil
 		}
 		pinfos[i] = *p
@@ -607,13 +608,25 @@ func DumpDhtDS(n *P2PNode) {
 		// decode provider data
 		if strings.HasPrefix(e.Key, "/provider") {
 			ttt := strings.Split(e.Key, "/")
-			fmt.Println(ttt)
+
+			var kv []string
+			for i := 2; i < len(ttt); i++ {
+				if t, e := base32.RawStdEncoding.DecodeString(ttt[i]); e != nil {
+					kv = append(kv, ttt[i])
+				} else {
+					v, _ := cid.Cast(t)
+					kv = append(kv, v.String())
+				}
+			}
+
+			fmt.Println(ttt[1], kv)
 		} else {
 			rec := new(recpb.Record)
 			err = proto.Unmarshal(buf, rec)
 			fmt.Println(e.Key, string(rec.Key), string(rec.Value))
 		}
 	}
+	fmt.Println("Total entries : ", len(all))
 }
 
 func FindProviders(n *P2PNode, key string) {
@@ -836,7 +849,7 @@ func ServeTest2(ctx context.Context, limit int64) {
 	for {
 		c, err := l.Accept()
 		if err != nil {
-			log.Error(err)
+			fmt.Println(err)
 			break
 		}
 
