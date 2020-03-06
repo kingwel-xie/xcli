@@ -167,15 +167,9 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 		panic(err)
 	}
 	defer rl.Close()
-
-	/*
-		setPasswordCfg := rl.GenPasswordConfig()
-		setPasswordCfg.SetListener(func(line []rune, pos int, key rune) (newLine []rune, newPos int, ok bool) {
-			rl.SetPrompt(fmt.Sprintf("Enter password(%v): ", len(line)))
-			rl.Refresh()
-			return nil, 0, false
-		})
-	*/
+	// we close the stdio so that readline will quit the terminal ioloop
+	// dont close() here, we use os.Exit instead
+	//defer os.Stdin.Close()
 
 	// make cli app
 	app := setupCLI(fullCmds, rl, f)
@@ -238,6 +232,7 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 			}()
 
 			for {
+				rl.Terminal.KickRead()
 				select {
 				case <-ctx.Done():
 					return
@@ -269,6 +264,7 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 		//rl.Operation
 		//fmt.Println("DOne...")
 	}
+	os.Exit(1)
 }
 
 func setupCLI(cmds []*cli.Command, rl *readline.Instance, f func(map[string]interface{})) *cli.App {
