@@ -182,6 +182,7 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 	for {
 		ln := rl.Line()
 		if ln.CanBreak() {
+			fmt.Println(ln)
 			if inDebugger {
 				fmt.Println("Quit if in debugger, got", ln)
 				break
@@ -367,6 +368,8 @@ AUTHOR{{with $length := len .Authors}}{{if ne 1 $length}}S{{end}}{{end}}:
 	}
 
 	// callback to set user specific data
-	f(app.Metadata)
+	if f != nil {
+		f(app.Metadata)
+	}
 	return app
 }
