@@ -201,7 +201,7 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 		line := strings.TrimSpace(ln.Line)
 		var args []string = []string{"CLI"}
 		if line != "" {
-			cmdargs := strings.Split(line, " ")
+			cmdargs := strings.Fields(line)
 			args = append(args, cmdargs...)
 		}
 
