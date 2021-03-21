@@ -142,7 +142,8 @@ func RunCli(cmds cli.Commands, f func(map[string]interface{})) {
 
 	//fmt.Println(completer.Tree(""))
 
-	inDebugger := strings.Contains(os.Args[0], "go_build")
+	//inDebugger := strings.Contains(os.Args[0], "go_build")
+	inDebugger := true
 
 	var prompt string
 	if inDebugger {

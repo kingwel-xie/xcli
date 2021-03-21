@@ -13,7 +13,6 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-datastore/query"
-	dsync "github.com/ipfs/go-datastore/sync"
 	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/network"
@@ -34,7 +33,7 @@ import (
 type P2PNode struct {
 	host.Host
 	Dht *dht.IpfsDHT
-	Ds  *dsync.MutexDatastore
+	Ds  ds.Datastore
 }
 
 var (
